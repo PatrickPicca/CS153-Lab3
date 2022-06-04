@@ -335,6 +335,28 @@ copyuvm(pde_t *pgdir, uint sz)
     if(mappages(d, (void*)i, PGSIZE, V2P(mem), flags) < 0)
       goto bad;
   }
+    //We need to copy all the pages in the stack that start at the KERNBASE and go down as the size
+    //is now changing with the new child
+    struct proc *curproc = myproc();
+   // int topOfStack = KERNBASE - curproc->stackSize * PGSIZE; // Need to update to actual top of stack
+    //topOfStack = PGROUNDDOWN(topOfStack);
+
+    for(i = KERNBASE - (curproc->stackSize * PGSIZE); i < KERNBASE && (curproc->stackSize > 0); i += PGSIZE){
+        if((pte = walkpgdir(pgdir, (void *) i, 0)) == 0)
+            panic("copyuvm: pte should exist");
+        if(!(*pte & PTE_P))
+            panic("copyuvm: page not present");
+        pa = PTE_ADDR(*pte);
+        flags = PTE_FLAGS(*pte);
+        if((mem = kalloc()) == 0)
+            goto bad;
+        memmove(mem, (char*)P2V(pa), PGSIZE);
+        if(mappages(d, (void*)i, PGSIZE, V2P(mem), flags) < 0) {
+            kfree(mem);
+            goto bad;
+        }
+    }
+
   return d;
 
 bad:
