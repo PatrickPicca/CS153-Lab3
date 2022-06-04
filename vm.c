@@ -341,7 +341,7 @@ copyuvm(pde_t *pgdir, uint sz)
    // int topOfStack = KERNBASE - curproc->stackSize * PGSIZE; // Need to update to actual top of stack
     //topOfStack = PGROUNDDOWN(topOfStack);
 
-    for(i = KERNBASE - (curproc->stackSize * PGSIZE); i < KERNBASE && (curproc->stackSize > 0); i += PGSIZE){
+    for(i = KERNBASE - (curproc->stackSize * PGSIZE); i < KERNBASE; i += PGSIZE){
         if((pte = walkpgdir(pgdir, (void *) i, 0)) == 0)
             panic("copyuvm: pte should exist");
         if(!(*pte & PTE_P))
