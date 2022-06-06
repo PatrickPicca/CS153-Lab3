@@ -18,8 +18,8 @@ int
 fetchint(uint addr, int *ip)
 {
 
-    //if(addr >= STACK || addr+4 > STACK)
-    //    return -1;
+    if(addr >= STACK || addr+4 > STACK)
+        return -1;
     *ip = *(int*)(addr);
     return 0;
 }
@@ -32,8 +32,8 @@ fetchstr(uint addr, char **pp)
 {
     char *s, *ep;
 
-    //if(addr >= STACK)
-    //    return -1;
+    if(addr >= STACK)
+        return -1;
     *pp = (char*)addr;
     ep = (char*)STACK;
     for(s = *pp; s < ep; s++){
@@ -60,8 +60,8 @@ argptr(int n, char **pp, int size)
 
     if(argint(n, &i) < 0)
         return -1;
-    //if(size < 0 || (uint)i >= STACK || (uint)i+size > STACK)
-    //    return -1;
+    if(size < 0 || (uint)i >= STACK || (uint)i+size > STACK)
+        return -1;
     *pp = (char*)i;
     return 0;
 }
